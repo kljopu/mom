@@ -10,10 +10,11 @@ import {
 import { BaseModel } from '../shared/base.model';
 import { Gender } from "../shared/utill/gender"
 import { User } from "../user/user.model"
+import { Mom } from 'src/mom/mom.model';
 
 @Entity()
 export class Sitter extends BaseModel {
-    @Column({ type: "text", nullable: false })
+    @Column({ type: "text", nullable: true })
     aboutMe!: string;
 
     @Column({ type: "int", default: 0 })
@@ -28,4 +29,10 @@ export class Sitter extends BaseModel {
 
     @Column()
     userId: number;
+
+    @ManyToOne(() => Mom, mom => mom.sitters, { onDelete: "CASCADE" })
+    mom: Mom;
+
+    @RelationId((sitter: Sitter) => sitter.mom)
+    momId: number;
 }

@@ -1,9 +1,11 @@
-import bcrypt from "bcrypt"
+import * as bcrypt from "bcrypt"
 import { BaseModel } from '../shared/base.model';
-import { Column, Entity, BeforeInsert } from 'typeorm';
-import { InternalServerErrorException } from "@nestjs/common";
+import { Column, Entity, BeforeInsert, OneToMany, OneToOne } from 'typeorm';
+import { InternalServerErrorException, BadRequestException } from "@nestjs/common";
 import { IsEmail } from "class-validator"
 import { Gender } from "../shared/utill/gender"
+import { Mom } from "src/mom/mom.model";
+import { Sitter } from "src/sitter/sitter.model";
 
 export enum UserRole {
     Mom = "Mom",
@@ -28,17 +30,17 @@ export class User extends BaseModel {
     @Column({ type: "text" })
     email!: string
 
-    @Column("enum", { enum: Gender })
+    @Column("enum", { enum: Gender, nullable: true })
     public gender!: Gender
 
-    @Column("enum", { enum: UserRole })
+    @Column("enum", { enum: UserRole, nullable: true })
     public role: UserRole
 
-    // @Column({ type: "boolean", default: false })
-    // isMom: boolean
+    @OneToOne(() => Mom, mom => mom.user)
+    mom: Mom
 
-    // @Column({ type: "boolean", default: false })
-    // isSitter: boolean
+    @OneToOne(() => Sitter, sitter => sitter.user)
+    sitter: Sitter
 
     @BeforeInsert()
     async savePassword(): Promise<void> {
@@ -58,6 +60,14 @@ export class User extends BaseModel {
         } catch (error) {
             console.log("err", error);
             throw new InternalServerErrorException()
+        }
+    }
+
+    @BeforeInsert()
+    async checkReg(): Promise<void> {
+        var regex = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/;
+        if (!regex.test(this.password)) {
+            throw new BadRequestException('Invalid RegExp')
         }
     }
 }

@@ -4,21 +4,22 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
     DeleteDateColumn,
+    BaseEntity,
 } from 'typeorm';
 
-export abstract class BaseModel {
+export abstract class BaseModel extends BaseEntity {
     @PrimaryGeneratedColumn('increment')
     id!: number
 
     @CreateDateColumn()
-    @Column({ type: "timestamp" })
+    // @Column({ type: "timestamp" })
     createAt!: Date
 
     @UpdateDateColumn()
-    @Column({ type: "timestamp" })
+    // @Column({ type: "timestamp" })
     updateAt!: Date
 
     @DeleteDateColumn()
-    @Column({ type: "timestamp" })
+    // @Column({ type: "timestamp" })
     deletedAt!: Date
 }
